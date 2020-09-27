@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
 import { Button, Slider } from 'react-native-elements';
-import MapView from 'react-native-maps';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import * as Location from "expo-location";
 import Loading from '../../components/Loading';
+
+import { firebaseApp } from '../../utils/firebase';
+import firebase from 'firebase/app';
+import "firebase/storage";
+import "firebase/firestore";
+
+const db = firebase.firestore(firebaseApp);
 
 export default function SafeArea() {
     const [value, setValue] = useState(500)
     const [location, setLocation] = useState(null);
+    const [isVisible, setIsVisible] = useState(false);
   
     useEffect(() => {
       (async () => {
@@ -15,11 +23,38 @@ export default function SafeArea() {
         if (status !== 'granted') {
           console.log('Permission to access location was denied');
         }
-        await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation,distanceInterval: 10, },
-          (loc) => { setLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.007, longitudeDelta: 0.007 }) }
-          );
+        // await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation,distanceInterval: 10, },
+        //   (loc) => { setLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.007, longitudeDelta: 0.007 }) }
+        //   );
+        const loc = await Location.getCurrentPositionAsync({});
+        setLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          latitudeDelta: 0.007,
+          longitudeDelta: 0.007
+        });
       })();
     }, []);
+
+    const onPress = () => {
+      setIsVisible(true);
+      try {
+        db.collection("pacientes").doc("paciente-test").set({
+          safeArea: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            distance: Math.trunc(value),
+            createdAt: new Date()
+          }
+        })
+        setIsVisible(false);
+      } catch (error) {
+        setIsVisible(false);
+        console.log("Error al subir los datos")
+      }
+    }
+
+
 
     return (
         <View style={styles.container}> 
@@ -27,9 +62,31 @@ export default function SafeArea() {
                 <MapView 
                     style={styles.mapContainer}
                     initialRegion={location}
-                />
+                    onRegionChange={(region)=>setLocation(region)}
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: location.latitude,
+                      longitude: location.longitude
+                    }}
+                  >
+                  </Marker>
+                  <Circle
+                    center={{
+                      latitude: location.latitude,
+                      longitude: location.longitude
+                    }}
+                    radius={value}
+                    strokeWidth={2}
+                    strokeColor="#d90429"
+                    fillColor="rgba(239, 35, 60, 0.3)"
+                  >
+
+                  </Circle>
+                </MapView>
                 : <Loading isVisible={true} text="Cargando"/> 
             }
+            <Loading isVisible={isVisible} text="Cargando"/>
             <Slider
                 style= {styles.sliderBar}
                 value = {value}
@@ -48,7 +105,7 @@ export default function SafeArea() {
             <Button
                 title="Determinar área segura"
                 containerStyle={styles.btnContainer}
-                onPress={() => {console.log(Math.trunc(value))}}
+                onPress={onPress}
             />
         </View>
     )
