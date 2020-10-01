@@ -16,6 +16,145 @@ export default function SafeArea() {
     const [value, setValue] = useState(500)
     const [location, setLocation] = useState(null);
     const [isVisible, setIsVisible] = useState(false);
+
+    const historyLocation = [
+      {
+            latitude: -33.0426675,
+            longitude: -71.5884359,
+          }, 
+      {
+            latitude: -33.0427496,
+            longitude: -71.5884845,
+          }, 
+      {
+            latitude: -33.0427894,
+            longitude: -71.5885905,
+          }, 
+      {
+            latitude: -33.0428302,
+            longitude: -71.588699,
+          }, 
+      {
+            latitude: -33.0428302,
+            longitude: -71.588699,
+          }, 
+      {
+            latitude: -33.0428714,
+            longitude: -71.5888107,
+          }, 
+      {
+            latitude: -33.0429141,
+            longitude: -71.588922,
+          }, 
+      {
+            latitude: -33.0429517,
+            longitude: -71.5890205,
+          }, 
+      {
+            latitude: -33.0429971,
+            longitude: -71.58914,
+          }, 
+      {
+            latitude: -33.0429971,
+            longitude: -71.58914,
+          }, 
+      {
+            latitude: -33.0429723,
+            longitude: -71.5893277,
+          }, 
+      {
+            latitude: -33.0428498,
+            longitude: -71.5893877,
+          }, 
+      {
+            latitude: -33.0427346,
+            longitude: -71.5894454,
+          }, 
+      {
+            latitude: -33.0425094,
+            longitude: -71.5895605,
+          }, 
+      {
+            latitude: -33.0423966,
+            longitude: -71.5896179,
+          }, 
+      {
+            latitude: -33.0421788,
+            longitude: -71.5897306,
+          }, 
+      {
+            latitude: -33.0420727,
+            longitude: -71.5897772,
+          }, 
+      {
+            latitude: -33.0418447,
+            longitude: -71.5898879,
+          }, 
+      {
+            latitude: -33.0417408,
+            longitude: -71.5899377,
+          }, 
+      {
+            latitude: -33.0415037,
+            longitude: -71.5900529,
+          }, 
+      {
+            latitude: -33.0413997,
+            longitude: -71.5901024,
+          }, 
+      {
+            latitude: -33.0411637,
+            longitude: -71.5902189,
+          }, 
+      {
+            latitude: -33.0410504,
+            longitude: -71.590277,
+          }, 
+      {
+            latitude: -33.0408541,
+            longitude: -71.590376,
+          }, 
+      {
+            latitude: -33.040718,
+            longitude: -71.5904493,
+          }, 
+      {
+            latitude: -33.0404866,
+            longitude: -71.5905685,
+          }, 
+      {
+            latitude: -33.0404012,
+            longitude: -71.5906102,
+          }, 
+      {
+            latitude: -33.0402983,
+            longitude: -71.5906022,
+          }, 
+      {
+            latitude: -33.0402468,
+            longitude: -71.5904503,
+          }, 
+      {
+            latitude: -33.0401437,
+            longitude: -71.590191,
+          }, 
+      {
+            latitude: -33.0400243,
+            longitude: -71.5901575,
+          }, 
+      {
+            latitude: -33.0399198,
+            longitude: -71.5902316,
+          }, 
+      {
+            latitude: -33.0397181,
+            longitude: -71.5903442,
+          }, 
+      {
+            latitude: -33.0396306,
+            longitude: -71.5903884,
+          }
+      ]
   
     useEffect(() => {
       (async () => {
@@ -39,13 +178,18 @@ export default function SafeArea() {
     const onPress = () => {
       setIsVisible(true);
       try {
-        db.collection("pacientes").doc("paciente-test").set({
+        db.collection("pacientes").doc("paciente-test-area").set({
           safeArea: {
             latitude: location.latitude,
             longitude: location.longitude,
             distance: Math.trunc(value),
             createdAt: new Date()
-          }
+          }//,
+          // historyLocation: historyLocation,
+          // currentLocation: {
+          //   latitude: -33.0396306,
+          //   longitude: -71.5903884,
+          // }
         })
         setIsVisible(false);
       } catch (error) {

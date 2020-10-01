@@ -1,20 +1,48 @@
-import React from 'react';
+import React, { useState ,useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Polyline, Marker } from 'react-native-maps';
+import Loading from '../../components/Loading';
+
+import { firebaseApp } from '../../utils/firebase';
+import firebase from 'firebase/app';
+import "firebase/storage";
+import "firebase/firestore";
+
+const db = firebase.firestore(firebaseApp);
 
 export default function HistLocation() {
+    const [histLocation, setHistLocation] = useState(null);
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        db.collection('pacientes').doc('paciente-test').get()
+        .then((response) => {
+          const respuesta =  response.data().historyLocation;
+          setHistLocation(respuesta)
+        });
+
+        db.collection('pacientes').doc('paciente-test').get()
+        .then((response) => {
+            const respuesta =  response.data().currentLocation;
+            setLocation({
+            latitude: respuesta.latitude,
+            longitude: respuesta.longitude,
+            latitudeDelta: 0.007,
+            longitudeDelta: 0.007
+            })
+        });
+      }, []);
+
+
     return (
         <View style={styles.container}>
-            <MapView style={styles.mapContainer}>
+            {location ? 
+            <MapView 
+                style={styles.mapContainer}
+                initialRegion={location}
+            >
                 <Polyline
-                    coordinates={[
-                        { latitude: 37.8025259, longitude: -122.4351431 },
-                        { latitude: 37.7896386, longitude: -122.421646 },
-                        { latitude: 37.7665248, longitude: -122.4161628 },
-                        { latitude: 37.7734153, longitude: -122.4577787 },
-                        { latitude: 37.7948605, longitude: -122.4596065 },
-                        { latitude: 37.8025259, longitude: -122.4351431 }
-                    ]}
+                    coordinates={histLocation}
                     strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
                     strokeColors={[
                         '#7F0000',
@@ -26,7 +54,15 @@ export default function HistLocation() {
                     ]}
                     strokeWidth={6}
                 />
+                <Marker
+                    coordinate={{
+                      latitude: location.latitude,
+                      longitude: location.longitude
+                    }}
+                  ></Marker>
             </MapView>
+            : <Loading isVisible={true} text="Cargando"/> 
+            }
         </View>
     )
 }

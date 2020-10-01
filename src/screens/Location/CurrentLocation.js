@@ -1,24 +1,42 @@
 import React, { useState ,useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import Loading from '../../components/Loading';
+import { Button } from "react-native-elements";
+
+import { firebaseApp } from '../../utils/firebase';
+import firebase from 'firebase/app';
+import "firebase/storage";
+import "firebase/firestore";
+
+const db = firebase.firestore(firebaseApp);
+
 
 export default function currentLocation() {
     const [location, setLocation] = useState(null);
   
     useEffect(() => {
-      (async () => {
-        const { status } = await Location.requestPermissionsAsync();
-        if (status !== 'granted') {
-          console.log('Permission to access location was denied');
-        }
-        await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation,distanceInterval: 10, },
-          (loc) => { setLocation({latitude: loc.coords.latitude, longitude: loc.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 }) }
-          );
-      })();
+      db.collection('pacientes').doc('paciente-test').get()
+      .then((response) => {
+        const respuesta =  response.data().currentLocation;
+        setLocation({
+          latitude: respuesta.latitude,
+          longitude: respuesta.longitude,
+          latitudeDelta: 0.007,
+          longitudeDelta: 0.007
+        })
+      });
     }, []);
+
+    const onPress = () => {
+      console.log(`Location = {
+        latitude: ${location.latitude},
+        longitude: ${location.longitude},
+        time: ${new Date()}
+      }`)
+    }
 
     return (
       <View style={styles.container}>
@@ -27,7 +45,14 @@ export default function currentLocation() {
                     style={styles.mapStyle}
                     initialRegion={location}
                     showsUserLocation={true}
-                />    
+                > 
+                  <Marker
+                    coordinate={{
+                      latitude: location.latitude,
+                      longitude: location.longitude
+                    }}
+                  ></Marker>
+                </MapView>
                 : <Loading isVisible={true} text="Cargando"/> 
             }
       </View>

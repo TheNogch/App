@@ -4,10 +4,12 @@ import * as firebase from "firebase";
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
+import { DistanciaCoordenadas } from '../../components/Sentinel';
+
 const LOCATION_TASK_NAME = 'background-location-task';
 
 export default function Account() {
-
+    let dinstancia = DistanciaCoordenadas();
     const onPress = async () => {
         const { status } = await Location.requestPermissionsAsync();
         if (status === 'granted') {
@@ -28,7 +30,8 @@ export default function Account() {
         <View>
             <Text>Account...</Text>
             <Button title="Cerrar Sesión" onPress={() => firebase.auth().signOut()} />
-            <Button title="Background" onPress={onPress} />
+            <Button title="Distancia" onPress={() => console.log(dinstancia)} />
+            <Button title="Back" onPress={onPress} />
         </View>
     )
 }

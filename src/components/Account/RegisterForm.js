@@ -31,6 +31,10 @@ export default function RegisterForm(props) {
       toastRef.current.show(
         "La contraseña tiene que tener al menos 6 caracteres"
       );
+    } else if (size(formData.password) > 16) {
+      toastRef.current.show(
+        "La contraseña tiene que tener menos de 16 caracteres"
+      );
     } else {
       setLoading(true);
       firebase

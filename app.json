@@ -29,11 +29,17 @@
       "favicon": "./assets/favicon.png"
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBZLQe6igFf5G2h93D-nRPcJ2bFs0HXdPc"
+        }
+      },
       "permissions": [
         "LOCATION",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "package": "alzhistatn.apk"
     }
   }
 }
