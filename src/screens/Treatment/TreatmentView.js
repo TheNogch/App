@@ -1,84 +1,73 @@
-import React, { useState } from 'react';
-import { Alert, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import React, { useState } from 'react'
+import { StyleSheet, SafeAreaView, ScrollView } from 'react-native'
 import { Input, Button, Icon } from "react-native-elements";
 import {Picker} from '@react-native-community/picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 
-import Loading from  '../../components/Loading';
 import TratamientoClass from '../../clasess/TratamientoClass';
 
-export default function AddTreatment( {navigation} ) {
-    const [isVisible, setIsVisible] = useState(false);
-    const [formData, setFormData] = useState(defaultFormValue());
+export default function TreatmentView( { route, navigation } ) {
+    const { tratamiento } = route.params;
+    const [formData, setFormData] = useState(tratamiento);
     const [show, setShow] = useState(false);
-
+    const [isVisible, setIsVisible] = useState(false);
+    
     const onChange = (e, type) => {
         setFormData({ ...formData, [type]: e.nativeEvent.text });
     };
-
-    const onSubmit = () => {
-        Alert.alert('Confirmacion nuevo tratamiento', "¿Desea agregar el tratamiento?",
-        [{
-            text: 'Si',
-            onPress: () => {
-                setIsVisible(true)
-                const tratamiento = new TratamientoClass(formData.title, formData.body, formData.type, formData.startDate, formData.frequency, formData.interval, formData.endDate)
-                console.log(tratamiento.objetoTratamiento())
-                try{
-                    tratamiento.agregarTratamiento("8VnAyXfmKwljqS0O7NY1");
-                }catch(error){
-                    console.log(error)
-                }
-                setIsVisible(false)
-                navigation.navigate("treatment")
-            }
-        },
-        {
-            text: 'No',
-            style: 'cancel'
-        }], {cancelable: false})
-    }
 
     const showDatepicker = () => {
         setShow(!show);
     }
 
     const onDateChange = (date) => {
-        console.log(moment(date).format('DD/MM/YYYY').toString() + " " + moment(date).format('HH:mm').toString());
-        setFormData({...formData, ["startDate"]: moment(date).format('DD/MM/YYYY').toString() + " " + moment(date).format('HH:mm').toString()})
+        console.log(moment(date).format('DD/MM/YYYY').toString() + " " + moment(date).format('HH:MM').toString());
+        setFormData({...formData, ["fechaInicio"]: moment(date).format('DD/MM/YYYY').toString() + " " + moment(date).format('HH:MM').toString()})
         showDatepicker();
     }
 
+    const onPressDelete = () => {
+        const tratamientoConID = new TratamientoClass(formData.titulo, formData.descripcion, formData.tipo, formData.fechaInicio, formData.frecuencia, formData.intervalo, formData.fechaFin, formData.id);
+        tratamientoConID.eliminarTratamiento("8VnAyXfmKwljqS0O7NY1");
+        navigation.navigate("treatment");
+    }
+
+    const onPressUpdate = () => {
+        const tratamientoConID = new TratamientoClass(formData.titulo, formData.descripcion, formData.tipo, formData.fechaInicio, formData.frecuencia, formData.intervalo, formData.fechaFin, formData.id);
+        tratamientoConID.modificarTratamiento("8VnAyXfmKwljqS0O7NY1");
+        navigation.navigate("treatment");
+    }
+    
 
     return (
         <SafeAreaView style={styles.formContainer}>
             <ScrollView contentContainerStyle={styles.scrollViewStlye}>
                 <Input
-                    placeholder="Titulo Tratamiento"
+                    value={formData.titulo}
                     containerStyle={styles.inputTitle}
-                    onChange={(e) => onChange(e, "title")}
+                    onChange={(e) => onChange(e, "titulo")}
                     label="Titulo Tratamiento"
                 />
                 <Input
-                    placeholder="Descripcion Tratamiento"
+                    value={formData.descripcion}
                     containerStyle={styles.inputForm}
-                    onChange={(e) => onChange(e, "body")}
+                    onChange={(e) => onChange(e, "descripcion")}
                     label="Descripcion Tratamiento"
                     inputContainerStyle={styles.innerInput}
                 />
                 <Picker
-                    selectedValue={formData.type}
+                    selectedValue={formData.tipo}
                     style={{height: 50, width: "100%"}}
-                    onValueChange={(itemValue, itemIndex) => setFormData({...formData, ["type"]: itemValue})}
+                    onValueChange={(itemValue, itemIndex) => setFormData({...formData, ["tipo"]: itemValue})}
                     >
                     <Picker.Item label="Medicamento" value="medicamento" />
                     <Picker.Item label="Actividad" value="actividad" />
                 </Picker>
                 <Input
-                    value = {formData.startDate}
+                    value = {formData.fechaInicio}
                     containerStyle={styles.inputForm}
-                    onChange={(e) => onChange(e, "startDate")}
+                    onChange={(e) => onChange(e, "fechaInicio")}
                     label="Fecha inicio tratamiento"
                     inputContainerStyle={styles.innerInput}
                     disabled={true}
@@ -92,27 +81,33 @@ export default function AddTreatment( {navigation} ) {
                     }
                 />
                 <Input
-                    placeholder="Frecuencia Tratamiento"
+                    value={formData.intervalo}
                     keyboardType='numeric'
                     containerStyle={styles.inputForm}
-                    onChange={(e) => onChange(e, "interval")}
+                    onChange={(e) => onChange(e, "intervalo")}
                     label="Frecuencia Tratamiento"
                     inputContainerStyle={styles.innerInput}
                 />
                 <Picker
-                    selectedValue={formData.frequency}
+                    selectedValue={formData.frecuencia}
                     style={{height: 50, width: "100%"}}
-                    onValueChange={(itemValue, itemIndex) => setFormData({...formData, ["frequency"]: itemValue})}
+                    onValueChange={(itemValue, itemIndex) => setFormData({...formData, ["frecuencia"]: itemValue})}
                     >
                     <Picker.Item label="Horas" value="hrs" />
                     <Picker.Item label="Días" value="dd" />
                     <Picker.Item label="Meses" value="mm" />
                 </Picker>
                 <Button
-                    title="Añadir Tratamiento"
+                    title="Modificar"
                     containerStyle={styles.btnContainerAdd}
                     buttonStyle={styles.btnRegister}
-                    onPress={onSubmit}
+                    onPress={onPressUpdate}
+                />
+                <Button
+                    title="Eliminar"
+                    containerStyle={styles.btnContainerAdd}
+                    buttonStyle={styles.btnRegister}
+                    onPress={onPressDelete}
                 />
                 <DateTimePicker
                     isVisible = {show}
@@ -120,25 +115,11 @@ export default function AddTreatment( {navigation} ) {
                     onConfirm = {onDateChange}
                     onCancel = {showDatepicker}
                     is24Hour = {true}
-                >
-                </DateTimePicker>
-                <Loading isVisible={isVisible} text="Cargando"/>
+                ></DateTimePicker>
             </ScrollView>
         </SafeAreaView>
     )
 }
-
-function defaultFormValue() {
-    return {
-      title: "",
-      body: "",
-      type: "medicamento",
-      startDate: "",
-      frequency: "hrs",
-      interval: "",
-      endDate: false
-    };
-  }
 
 const styles = StyleSheet.create({
     formContainer: {
@@ -166,7 +147,10 @@ const styles = StyleSheet.create({
         marginTop: 20,
         width: "95%",
     },
+    btnRegister: {
+        color: "red"
+    },
     disabled: {
         color: "black"
     }
-});
+})

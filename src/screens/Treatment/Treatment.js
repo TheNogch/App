@@ -10,6 +10,11 @@ export default function Treatment( { navigation } ) {
                 containerStyle={styles.btnContainer}
                 onPress={() => {navigation.navigate('addTreatment')}}
             />
+            <Button
+                title="Lista Tratamientos"
+                containerStyle={styles.btnContainer}
+                onPress={() => {navigation.navigate('treatmentList')}}
+            />
         </View>
     )
 }
